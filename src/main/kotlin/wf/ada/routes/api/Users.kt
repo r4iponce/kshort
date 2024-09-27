@@ -19,6 +19,20 @@ fun Route.users() {
         call.respond(users)
     }
 
+    get("/users/{id}") {
+        val userService = UserService()
+        val id: Int = call.parameters["id"]!!.toInt()
+
+        val user: ExposedUser? = userService.read(id)
+        if (user != null) {
+            call.respond(user)
+            return@get
+        }
+
+        call.respond(HttpStatusCode.NotFound)
+    }
+
+
     post("/users") {
         val userService = UserService()
         val user: ExposedUser = call.receive<ExposedUser>()
@@ -27,7 +41,7 @@ fun Route.users() {
             return@post
         }
         val id: Int = userService.create(user)
-        call.respond(id)
+        call.respond(HttpStatusCode.Created )
     }
 
     delete("/users/{id}") {
