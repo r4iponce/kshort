@@ -11,9 +11,9 @@ val commonsLoggingVersion: String by project
 val flywayVersion: String by project
 
 plugins {
-    kotlin("jvm") version "2.0.0"
-    id("io.ktor.plugin") version "2.3.12"
-    id("org.jetbrains.kotlin.plugin.serialization") version "2.0.20"
+    kotlin("jvm") version "2.0.21"
+    id("io.ktor.plugin") version "3.0.0"
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.0.21"
 }
 
 group = "wf.ada"
@@ -35,6 +35,7 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:$ktorVersion")
     implementation("io.ktor:ktor-server-content-negotiation-jvm:$ktorVersion")
     implementation("io.ktor:ktor-server-netty-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-server-cors:$ktorVersion")
 
     // Auth
     implementation("io.ktor:ktor-server-auth-jvm")
