@@ -92,27 +92,31 @@ class UserService {
         return null
     }
 
-    suspend fun read(id: Int): ExposedUser? {
-        val user: ExposedUser? = dbQuery {
-            Users.selectAll().where { Users.id eq id }.map {
-                ExposedUser(
-                    id = it[Users.id].value,
-                    name = it[Users.name],
-                    email = it[Users.email],
-                    password = it[Users.password],
-                    description = it[Users.description],
-                    role = enumValueOf(it[Users.role]),
-                    creationDate = it[Users.creationDate],
-                )
-            }.singleOrNull()
-        }
+    suspend fun read(name: String): ExposedUser? {
+        val user: ExposedUser? =
+            dbQuery {
+                Users
+                    .selectAll()
+                    .where { Users.name eq name }
+                    .map {
+                        ExposedUser(
+                            id = it[Users.id].value,
+                            name = it[Users.name],
+                            email = it[Users.email],
+                            password = it[Users.password],
+                            description = it[Users.description],
+                            role = enumValueOf(it[Users.role]),
+                            creationDate = it[Users.creationDate],
+                        )
+                    }.singleOrNull()
+            }
 
         return user
     }
 
-    suspend fun delete(id: Int) {
+    suspend fun delete(name: String) {
         dbQuery {
-            Users.deleteWhere { Users.id eq id }
+            Users.deleteWhere { Users.name eq name }
         }
     }
 }

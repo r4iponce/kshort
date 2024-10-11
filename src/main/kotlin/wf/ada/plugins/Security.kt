@@ -35,7 +35,7 @@ fun Application.configureSecurity() {
                 }
             }
             challenge { _, _ ->
-                call.respond(HttpStatusCode.Unauthorized, "Token is not valid or has expired")
+                call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "Token is not valid or has expired"))
             }
         }
     }

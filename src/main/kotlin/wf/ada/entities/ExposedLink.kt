@@ -8,7 +8,7 @@ import java.time.LocalDateTime
 data class ExposedLink(
     val short: String,
     val url: String,
-    val ownerId: Int? = null,
+    var ownerId: Int? = null,
     @Serializable(with = LocalDateTimeSerializer::class) val creationDate: LocalDateTime? = LocalDateTime.now(),
     @Serializable(with = LocalDateTimeSerializer::class) val expirationDate: LocalDateTime? = null,
 )

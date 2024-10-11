@@ -13,43 +13,56 @@ import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
-import wf.ada.dto.UserDto
+import wf.ada.dto.AuthDto
 import wf.ada.entities.Token
 import wf.ada.entities.WebError
 import wf.ada.services.UserService
 import wf.ada.utils.Config
+import java.util.Date
 
 fun Route.auth() {
     post("/auth/tokens") {
         val userService = UserService()
-        val userDto: UserDto = call.receive<UserDto>()
+        val authDto: AuthDto = call.receive<AuthDto>()
 
-        val user = userService.checkAuth(userDto.email, userDto.password)
+        val user = userService.checkAuth(authDto.email, authDto.password)
         if (user != null) {
             val token =
                 JWT
                     .create()
                     .withAudience("${Config.url}api")
                     .withIssuer(Config.url)
-                    .withClaim("username", user.name)
+                    .withClaim("name", user.name)
+                    .withClaim("id", user.id)
                     .withClaim("email", user.email)
+                    .withClaim("role", user.role.toString())
                     .withClaim("creationDate", user.creationDate.toString())
-                    .withClaim("role", user.creationDate.toString())
-//                .withExpiresAt(Date(System.currentTimeMillis() + 60000))
+                    .withExpiresAt(Date(System.currentTimeMillis() + 86400)) // 24h
                     .sign(Algorithm.HMAC256(Config.jwtSecret))
             call.respond(Token(token))
         } else {
-            call.respond(HttpStatusCode.Unauthorized, WebError(HttpStatusCode.Unauthorized.toString(), "bad username or password"))
+            call.respond(
+                HttpStatusCode.Unauthorized,
+                WebError(HttpStatusCode.Unauthorized.toString(), "bad username or password"),
+            )
         }
     }
 
     authenticate("auth-jwt") {
-        get("/auth/current") {
-            val principal = call.principal<JWTPrincipal>()
-            val username = principal!!.payload.getClaim("username").asString()
-            val test = principal.payload.getClaim("test").asString()
-            val expiresAt = principal.expiresAt?.time?.minus(System.currentTimeMillis())
-            call.respondText("Hello, $username! Token is expired at $expiresAt ms. $test")
+        get("/auth/verify") {
+            val token = call.principal<JWTPrincipal>()
+
+            val name = token!!.payload.getClaim("name").asString()
+            val email = token.payload.getClaim("email").asString()
+            val role = token.payload.getClaim("role").asString()
+            val creationDate = token.payload.getClaim("creationDate").asString()
+            val expiresAt = token.expiresAt?.time?.minus(System.currentTimeMillis())
+            call.respondText(
+                "Hello, $name! Token is expired at $expiresAt ms. " +
+                    "email: $email\n" +
+                    "role: $role\n" +
+                    "creationDate: $creationDate\n",
+            )
         }
     }
 }
